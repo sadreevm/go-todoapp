@@ -19,7 +19,7 @@ CREATE TABLE todoapp.tasks (
     CHECK (
         (completed=FALSE AND completed_at IS NULL)
         OR
-        (completed=TRUE AND completed_at IS NOT NULL AND comleted_at >= created_at)
+        (completed=TRUE AND completed_at IS NOT NULL AND completed_at >= created_at)
     ),
 
     author_id    INTEGER NOT NULL REFERENCES todoapp.users(id)
