@@ -3,6 +3,7 @@ package core_http_middleware
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	core_logger "github.com/sadreevm/go-todoapp/internal/core/logger"
@@ -57,6 +58,32 @@ func Panic() Middleware {
 			}()
 
 			next.ServeHTTP(w,r)
+		})
+	}
+}
+
+func Trace() Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			log := core_logger.FromContext(ctx)
+			rw := core_http_response.NewResponseWriter(w)
+
+			before := time.Now()
+
+			log.Debug(
+				">>> Incoming HTTP request",
+				zap.Time("time", before.UTC()),
+			) 
+
+			next.ServeHTTP(rw,r)
+			
+			log.Debug(
+				"<<< Done HTTP request",
+				zap.Int("status_code", rw.GetStatusCodeOrPanic()),
+				zap.Duration("latency", time.Since(before)),
+
+			)
 		})
 	}
 }
